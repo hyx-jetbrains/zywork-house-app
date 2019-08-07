@@ -183,9 +183,6 @@
 					showInfoToast('请注意必填信息哦：贷款总金额、贷款年限和房贷利率')
 					return
 				}
-				this.loan.firstPayPercent = this.payPercents[this.loan.firstPayPercent]
-				this.loan.loanYear = this.loanYears[this.loan.loanYear]
-				this.loan.yearRate = this.yearRates[this.loan.yearRate]
 				uni.navigateTo({
 					url: '/pages/calculator/loan-cal?loan=' + JSON.stringify(this.loan)
 				})
