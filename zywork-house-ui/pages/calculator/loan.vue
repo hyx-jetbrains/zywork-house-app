@@ -31,7 +31,7 @@
 		<view class="zy-list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
 			<text style="color: #ff0000;">*</text>
 			<text class="cell-tit">贷款年限</text>
-			<picker class="cell-content" @change="chooseLoanYears" :range="loanYearsDes">
+			<picker class="cell-content" @change="chooseLoanYears" :range="loanYearsDes" :value="0">
 				<input v-model="loanYearsDes[loan.loanYear]" :disabled="true" placeholder="请选择贷款年限(必填)"/>
 			</picker>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
@@ -39,18 +39,19 @@
 		<view class="zy-list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
 			<text style="color: #ff0000;">*</text>
 			<text class="cell-tit">房贷利率</text>
-			<picker class="cell-content" @change="chooseYearRate" :range="yearRatesDes">
+			<picker class="cell-content" @change="chooseYearRate" :range="yearRatesDes" :value="4">
 				<input v-model="yearRatesDes[loan.yearRate]" :disabled="true" placeholder="请选择房贷利率(必填)"/>
 			</picker>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
 		<view class="zy-list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">首次还款日</text>
-			<picker class="cell-content" mode="date" @change="bindDateChange">
+			<picker class="cell-content" mode="date" @change="bindDateChange" :value="getDate()">
 				<input v-model="loan.firstYearMonth" :disabled="true" placeholder="请选择首次还款年月日(选填)"/>
 			</picker>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
+		<view style="font-size: 22upx; color: #fa436a; width: 100%; text-align: center; padding:20upx;">注：*号部分为必填项，其他为选填项，选填项可以帮助您计算相关信息。最终结果请以银行计算为准，本小程序不负法律责任</view>
 		<button class="zy-add-btn" @click="calculate">计算</button>
 	</view>
 </template>
@@ -71,12 +72,11 @@
 					totalLoan: null,
 					firstPayPercent: null,
 					firstPayMoney: null,
-					totalLoan: null,
 					houseArea: null,
 					unitPrice: null,
-					loanYear: null,
-					yearRate: null,
-					firstYearMonth: null
+					loanYear: 0,
+					yearRate: 4,
+					firstYearMonth: this.getDate()
 				},
 				payPercents: [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80],
 				payPercentsDes: ['15%', '20%', '25%', '30%', '35%', '40%', '45%', '50%', '60%', '70%', '80%'],
@@ -113,6 +113,8 @@
 					if (this.loan.firstPayPercent) {
 						this.loan.firstPayMoney = (this.loan.totalMoney * this.payPercents[this.loan.firstPayPercent] / 100).toFixed(2)
 						this.loan.totalLoan = this.loan.totalMoney - this.loan.firstPayMoney
+					} else if (this.loan.houseArea) {
+						this.loan.unitPrice = (e.target.value / this.loan.houseArea).toFixed(2)
 					}
 				} else {
 					this.loan.firstPayMoney = null
@@ -162,30 +164,44 @@
 			},
 			areaCal(e) {
 				if (e.target.value) {
-					if (this.loan.totalMoney) {
+					if (this.loan.totalMoney && !this.loan.unitPrice) {
 						this.loan.unitPrice = (this.loan.totalMoney / e.target.value).toFixed(2)
+					} else if (this.loan.unitPrice && !this.loan.totalMoney) {
+						this.loan.totalMoney = (this.loan.unitPrice * e.target.value).toFixed(2)
+					} else if (this.loan.unitPrice && this.loan.totalMoney) {
+						this.loan.totalMoney = (this.loan.unitPrice * e.target.value).toFixed(2)
 					}
 				} else {
-					this.loan.unitPrice = null
+					this.loan.totalMoney = null
 				}
 			},
 			priceCal(e) {
 				if (e.target.value) {
-					if (this.loan.totalMoney) {
+					if (this.loan.totalMoney && !this.loan.houseArea) {
 						this.loan.houseArea = (this.loan.totalMoney / e.target.value).toFixed(2)
+					} else if (this.loan.houseArea && !this.loan.totalMoney) {
+						this.loan.totalMoney = (this.loan.houseArea * e.target.value).toFixed(2)
+					} else if (this.loan.houseArea && this.loan.totalMoney) {
+						this.loan.totalMoney = (this.loan.houseArea * e.target.value).toFixed(2)
 					}
 				} else {
-					this.loan.houseArea = null
+					this.loan.totalMoney = null
 				}
 			},
 			calculate() {
-				if (!this.loan.totalLoan || !this.loan.loanYear || !this.loan.yearRate) {
+				if (this.loan.totalLoan === null || this.loan.loanYear === null || this.loan.yearRate === null) {
 					showInfoToast('请注意必填信息哦：贷款总金额、贷款年限和房贷利率')
 					return
 				}
 				uni.navigateTo({
 					url: '/pages/calculator/loan-cal?loan=' + JSON.stringify(this.loan)
 				})
+			},
+			getDate() {
+				let date = new Date()
+				let month = date.getMonth() + 2
+				let theDate = date.getDate()
+				return date.getFullYear() + '-' + (month > 9 ? month : ('0' + month)) + '-' + (theDate > 9 ? theDate : ('0' + theDate))
 			}
 		}
 	}

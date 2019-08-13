@@ -9,19 +9,35 @@
 		</view>
 		<view class="zy-list-cell b-b m-t" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">贷款总金额(元)</text>
-			<input class="cell-content" v-model="loan.totalLoan" :disabled="true"/>
+			<input class="cell-content" type="number" v-model="loan.totalLoan" placeholder="请输入贷款总金额(必填)" :disabled="true"/>
 		</view>
 		<view class="zy-list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">贷款年限</text>
-			<input class="cell-content" v-model="loanYearsDes[loan.loanYear]" :disabled="true"/>
+			<picker class="cell-content" @change="chooseLoanYears" :range="loanYearsDes" :value="0">
+				<input v-model="loanYearsDes[loan.loanYear]" :disabled="true" placeholder="请选择贷款年限(必填)"/>
+			</picker>
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
 		<view class="zy-list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">房贷利率</text>
-			<input class="cell-content" v-model="yearRatesDes[loan.yearRate]" :disabled="true"/>
+			<picker class="cell-content" @change="chooseYearRate" :range="yearRatesDes" :value="4">
+				<input v-model="yearRatesDes[loan.yearRate]" :disabled="true" placeholder="请选择房贷利率(必填)"/>
+			</picker>
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
 		<view class="zy-list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">首次还款日</text>
-			<input class="cell-content" v-model="loan.firstYearMonth" :disabled="true"/>
+			<picker class="cell-content" mode="date" @change="bindDateChange">
+				<input v-model="loan.firstYearMonth" :disabled="true" placeholder="请选择首次还款年月日(选填)"/>
+			</picker>
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
+		</view>
+		<view class="zy-list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
+			<text class="cell-tit">提前还款日</text>
+			<picker class="cell-content" mode="date" @change="bindDateChange1">
+				<input v-model="loan.payYearMonth" :disabled="true" placeholder="请选择提前还款年月日(选填)"/>
+			</picker>
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
 		<view class="card">
 			<view class="card-title card-title1">
@@ -40,22 +56,20 @@
 		<swiper :current="tabCurrentIndex" class="swiper-box" duration="300" @change="changeTab">
 			<swiper-item class="tab-content" v-for="(tabItem,tabIndex) in navList" :key="tabIndex">
 				<scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData('reachBottom')">
-					<view class="month-item" v-for="(item, index) in payment.payMonth" :key="index">
-						<view class="date-title">{{item.yearMonthDate}}</view>
-						<view class="month-data">
-							<view style="width:50%; color: #fa436a;">当月还款：{{item.monthPay}}</view>
-							<view style="width:50%; color: #fa436a;">剩余本金：{{item.totalPrincipal}}</view>
+					<view style="font-weight: bold;text-align: center; padding: 15upx;">{{loan.payYearMonth}}提前还款</view>
+					<view style="font-weight: bold;text-align: center; padding: 15upx;">已还总本息¥{{thePayMonth.totalPay}}</view>
+					<view class="card">
+						<view class="card-title card-title1">
+							<text>已还总本金</text>
+							<text>¥{{thePayMonth.totalPayment}}</text>
 						</view>
-						<view class="month-data">
-							<view style="width:50%;">当月本金：{{item.monthPrincipal}}</view>
-							<view style="width:50%;">当月利息：{{item.monthInterest}}</view>
+						<view class="card-title card-title2">
+							<text>已还总利息</text>
+							<text>¥{{thePayMonth.totalInterest}}</text>
 						</view>
-						<view class="month-data">
-							<view style="width:50%;">总还本金：{{item.totalPayment}}</view>
-							<view style="width:50%;">总还利息：{{item.totalInterest}}</view>
-						</view>
-						<view class="month-data">
-							<view style="width:50%;">总还本息：{{item.totalPay}}</view>
+						<view class="card-title card-title3">
+							<text>剩余总本金</text>
+							<text>¥{{thePayMonth.totalPrincipal}}</text>
 						</view>
 					</view>
 				</scroll-view>
@@ -84,18 +98,12 @@
 					}
 				],
 				loan: {
-					totalMoney: null,
 					totalLoan: null,
-					firstPayPercent: null,
-					firstPayMoney: null,
-					houseArea: null,
-					unitPrice: null,
 					loanYear: null,
 					yearRate: null,
-					firstYearMonth: null
+					firstYearMonth: null,
+					payYearMonth: null,
 				},
-				payPercents: [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80],
-				payPercentsDes: ['15%', '20%', '25%', '30%', '35%', '40%', '45%', '50%', '60%', '70%', '80%'],
 				loanYears: [30, 25, 20, 15, 10, 5],
 				loanYearsDes: ['30年', '25年', '20年', '15年', '10年', '5年'],
 				yearRates: [3.92, 4.165, 4.41, 4.655, 4.9, 5.145, 5.39, 5.63, 5.88, 3.25, 3.4125, 3.575],
@@ -109,6 +117,7 @@
 					totalInterest: 0, // 总利息
 					payMonth: []
 				},
+				thePayMonth: {},
 				firstTime: true
 			}
 		},
@@ -187,15 +196,8 @@
 				}
 				this.payment.totalInterest = parseFloat(this.payment.payMonth[totalMonth - 1].totalInterest)
 				this.payment.totalPayment = (parseFloat(this.payment.payMonth[totalMonth - 1].totalPayment) + parseFloat(this.payment.totalInterest)).toFixed(2)
-				if (this.firstTime) {
-					setTimeout(() => {
-						uni.hideLoading()
-					}, 2000)
-					this.firstTime = false
-				} else {
-					uni.hideLoading()
-				}
-				
+				uni.hideLoading()
+				this.remainPrincipal()
 			},
 			debj(loanTotal, totalMonth, yearRate, firstMonthDate) {
 				uni.showLoading({
@@ -239,6 +241,16 @@
 				this.payment.totalInterest = parseFloat(this.payment.payMonth[totalMonth - 1].totalInterest)
 				this.payment.totalPayment = (parseFloat(this.payment.payMonth[totalMonth - 1].totalPayment) + parseFloat(this.payment.totalInterest)).toFixed(2)
 				uni.hideLoading()
+				this.remainPrincipal()
+			},
+			remainPrincipal() {
+				console.log(this.loan.payYearMonth.substring(0, this.loan.payYearMonth.lastIndexOf('-')))
+				for (let payMonth of this.payment.payMonth) {
+					console.log(payMonth.yearMonthDate)
+					if (payMonth.yearMonthDate.indexOf(this.loan.payYearMonth.substring(0, this.loan.payYearMonth.lastIndexOf('-'))) >= 0) {
+						this.thePayMonth = payMonth
+					}
+				}
 			}
 		}
 	}

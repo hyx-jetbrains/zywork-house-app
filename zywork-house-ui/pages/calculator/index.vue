@@ -1,10 +1,17 @@
 <template>
 	<view class="container">
 		<view class="zy-menu-cell bg-img shadow-blur" 
-		style="background-image:url(https://image.weilanwl.com/color2.0/plugin/wdh2236.jpg);"
+		style="background-image:url(https://image.weilanwl.com/color2.0/plugin/sylb2244.jpg);"
 		@click="toLoanPage">
 			<view class="content">
 				<text>房贷计算</text>
+			</view>
+		</view>
+		<view class="zy-menu-cell bg-img shadow-blur" 
+		style="background-image:url(https://image.weilanwl.com/color2.0/plugin/wdh2236.jpg);"
+		@click="toLoanPaymentPage">
+			<view class="content">
+				<text>提前还款计算</text>
 			</view>
 		</view>
 		<view class="zy-menu-cell bg-img shadow-blur" style="background-image:url(https://image.weilanwl.com/color2.0/plugin/qpct2148.jpg);">
@@ -29,6 +36,11 @@
 			toLoanPage() {
 				uni.navigateTo({
 					url: '/pages/calculator/loan'
+				})
+			},
+			toLoanPaymentPage() {
+				uni.navigateTo({
+					url: '/pages/calculator/loan-payment'
 				})
 			}
 		}
