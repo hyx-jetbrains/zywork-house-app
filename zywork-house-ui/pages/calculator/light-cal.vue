@@ -96,7 +96,7 @@
 							lightOk: true
 						})
 						this.okCount++
-						if (!this.beginDate) {
+						if (this.beginDate === null) {
 							this.beginDate = dateStr
 						}
 					} else {
@@ -105,7 +105,7 @@
 							dateStr: dateStr,
 							lightOk: false
 						})
-						if (!this.endDate) {
+						if (this.endDate === null) {
 							let tempDate = new Date()
 							tempDate.setMonth(date.getMonth())
 							tempDate.setDate(date.getDate() - 1)
@@ -113,6 +113,13 @@
 							this.endDate = dateStr
 						}
 					}
+				}
+				if (this.endDate === null) {
+					this.endDate = '12月31日'
+				}
+				if (this.okCount === 0) {
+					this.beginDate = '/'
+					this.endDate = '/'
 				}
 			}
 		}
