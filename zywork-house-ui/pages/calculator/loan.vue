@@ -190,7 +190,7 @@
 			},
 			calculate() {
 				if (this.loan.totalLoan === null || this.loan.loanYear === null || this.loan.yearRate === null) {
-					showInfoToast('请注意必填信息哦：贷款总金额、贷款年限和房贷利率')
+					showInfoToast('请注意必填信息哦')
 					return
 				}
 				uni.navigateTo({

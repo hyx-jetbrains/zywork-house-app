@@ -14,23 +14,40 @@
 				<text>提前还款计算</text>
 			</view>
 		</view>
-		<view class="zy-menu-cell bg-img shadow-blur" style="background-image:url(https://image.weilanwl.com/color2.0/plugin/qpct2148.jpg);">
+		<view class="zy-menu-cell bg-img shadow-blur" 
+		style="background-image:url(https://image.weilanwl.com/color2.0/plugin/qpct2148.jpg);"
+		@click="toLightPage">
 			<view class="content">
 				<text>采光计算</text>
 			</view>
 		</view>
+		<!--
 		<view class="zy-menu-cell bg-img shadow-blur" style="background-image:url(https://image.weilanwl.com/color2.0/plugin/qpczdh2307.jpg);">
 			<view class="content">
 				<text>备案查询(赣州)</text>
 			</view>
 		</view>
+		-->
+		<view style="font-size: 24upx; color: #999999; text-align: center; padding: 30upx; text-shadow:5px 2px 6px #ccc;" @click="toAboutPage">关于赣州智悦科技</view>
+		
+		<official-account></official-account>
 	</view>
 </template>
 
 <script>
+	import {
+		SHARE_IMG,
+	} from '@/common/util.js'
 	export default {
 		data() {
 			return {}
+		},
+		onShareAppMessage() {
+			return  {
+				title: '智悦科技购房小助手，看房必备',
+				path: '/pages/calculator/index',
+				imageUrl: SHARE_IMG
+			}
 		},
 		methods: {
 			toLoanPage() {
@@ -41,6 +58,16 @@
 			toLoanPaymentPage() {
 				uni.navigateTo({
 					url: '/pages/calculator/loan-payment'
+				})
+			},
+			toLightPage() {
+				uni.navigateTo({
+					url: '/pages/calculator/light'
+				})
+			},
+			toAboutPage() {
+				uni.navigateTo({
+					url: '/pages/about/about'
 				})
 			}
 		}
